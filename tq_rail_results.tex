@@ -1,0 +1,55 @@
+
+
+
+\section{Training Set in ECDFS}
+
+In this section, we describe how we make the photometric redshift training set in the ECDFS field of the ComCam survey. 
+
+\subsection{Spectroscopic datasets in ECDFS}
+
+We compile a spectroscopic dataset in the ComCam survey's ECDFS and cross-match it to the ECDFS object catalog to build the training set and test set for the machine learning photometric redshift algorithms. 
+
+\subsubsection{ESO/GOODS-S Spectroscopy master catalogue}
+
+These are spectroscopic redshifts and spectra publicly available in the Chandra Deep Field South (an area of $30'\times30'$ centered on RA=3:32:28.0 Dec= -27:48:30) have been collected. We use the compilation v2.0, dated to Dec 13 2009, which is the result of cross-matching each published spectroscopic catalog with the GOODS HST/ACS (v1.0) catalog and WFI-R catalog. All positions are given in the World Coordinate System defined by the ACS GOODS data. 
+
+In total, there are 7336 galaxies in this catalog. \footnote{For detailed reference of the sources that constituent the catalog, we refer to \url{https://www.stecf.org/goods/spectroscopy/CDFS\_Mastercat}}
+
+\subsubsection{CANDELS GOODS-S Redshift Catalog}
+
+We take the spectroscopic redshift in the CANDELS GOODS-S redshift catalog \footnote{The catalog is accessible in \url{https://archive.stsci.edu/hlsp/candels/goods-n-catalogs}}. We select the spectroscopic sample by selecting the positive values in the ``redshift'' column. In total, there are 2350 galaxies in this catalog. 
+
+\subsubsection{3D-HST Grism Reshift}
+
+3D-HST is a near-infrared Grism Spectroscopic survey with the Hubble Space Telescope designed to study the physical processes that shape galaxies in the distant Universe. We take the \texttt{v4.1.5} of 3D-HST catalog\footnote{\url{https://archive.stsci.edu/prepds/3d-hst/}}, and apply the following the following selections:
+\begin{enumerate}
+	\item \texttt{use\_zgrism == True}
+	\item \texttt{use\_phot == True}
+	\item \texttt{flag1 == False}
+	\item \texttt{flag2 == False}
+	\item \texttt{z\_best\_s != 0}
+	\item \texttt{z\_phot\_u68 - z\_phot\_l68 >0}.
+\end{enumerate}
+These quality cuts follow Kodra et al. 2023 to optimize photometric redshift. In total, there are 520 galaxies from this catalog. 
+
+\subsection{Object Catalog}
+
+We use the ComCam xxx release object catalog for the ComCam photometry. The tracts that contain the ECDFS field is \texttt{[5063, 4849, 4848]}. We select objects based on the following cuts:
+\begin{enumerate}
+	\item \texttt{detect\_isPrimary == 1} (is a primary object)
+	\item \texttt{refExtendedness == 1} (is indicated as an extended object)
+	\item \texttt{i\_cModelFlux/i\_cModelFluxErr > 5} (i-band signal-to-noise ratio over 5)
+	\item \texttt{\{ugrizy\}\_cModelMag < 30} (Brighter than mag-30 in every band)
+\end{enumerate}
+After these cuts, we get 131368 objects in the ComCam ECDFS field for cross-matching. Here, the ComCam CModel magnitude and magnitude error are converted by the CModel flux and flux error, assuming the zero point photometry at 31.4 magnitude. 
+
+We dereddened the galaxy magnitudes using a linear dereddening formalism,
+\begin{equation}
+m_{\rm dered} = m_{\rm obs} - k_{\lambda} E(B-V). 
+\end{equation}
+The $k_{\lambda}$ for $(u,g,r,i,z,y)$ bands are $(4.81,3.64,2.70,2.06,1.58,1.31)$, calculated based on LSST filters. We get the $E(B-V)$ values from the Schlegel, Finkbeiner \& Davis (SFD) dust map available in \texttt{dustmaps}. 
+
+
+\subsection{Cross Matching}
+
+We cross match the spectroscopic samples and the ComCam photometry to build a training set for the photo-$z$ algorithms. We use the \texttt{astropy} cross matching tools to find the closest spectroscopic object to every ComCam object. They are considered a match if the closest spectroscopic object is within $0.5$ arcsec. In total, we find 3855 matched galaxies in the ECDFS fields. 
