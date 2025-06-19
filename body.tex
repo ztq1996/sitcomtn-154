@@ -17,9 +17,73 @@ The outcome of this effort was a set of photometric redshift estimates that are 
 
 The Rubin Observatory’s Data Preview 1 (DP1) dataset is the first public release of real imaging data processed through the LSST Science Pipelines, serving as a critical testbed for scientific and technical validation ahead of full LSST operations.  DP1 is based on observations from the LSST commisioning camera (LSSTComCam) and includes multi-band optical imaging (typically in u, g, r, i, z and y filters) over several square degrees of sky.  The dataset consists of processed images, source catalogs, and associated metadata, all formatted using the Rubin Data Butler system to simulate LSST-like data products. Although smaller in scale than future LSST datasets, DP1 offers realistic photometric measurements, object detection, and data structures, making it an invaluable resource for developing and testing algorithms for tasks such as photometric redshift estimation, object classification, and data quality assessment.
 
-\subsection{Reference Sample}
-\label{sec:data:reference}
+\subsubsection{Data Preparation}
+\label{sec:data:dp1:preparation}
 
+Preparing the object catalog data for training the redshift estimation algorithms includes five steps:
+
+\begin{enumerate}
+\item{Applying quality cuts to object catalog.  The quality cuts are listed in Tab.\ref{tab:selection}.}
+\item{Converting Fluxes to Magntidues.  We use a magntidue offset of 31.4}
+\item{Dereddeing to account for galactic dust.   We use the SFD dust maps\cite{SFD}.}
+\item{Crossmatching objects with reference catalogs that include spectroscopic redshifts as described in Sec.\ref{sec:data:reference}.}
+\item{Splitting the resulting catalog into ``training'' and ``test'' data sets.}
+\end{enumerate}
+
+
+\begin{table*}
+\centering
+\begin{tabular}{lll}
+ \hline
+    Selection name & criteria\\
+ \hline
+ \hline
+  gold & Detection in 'ugrizy' \&\& \texttt{i\_psfFlux / i\_psfFluxErr > 5 \&\& ( g\_extendedness > 0.5 || r\_extendedness > 0.5)} \\
+  gold\_4\_band & Detection in 'griz' \&\& \texttt{i\_psfFlux / i\_psfFluxErr > 5 \&\& ( g\_extendedness > 0.5 || r\_extendedness > 0.5)}  \\
+ \hline
+\end{tabular}
+\caption{Selection criteria used in data preparation}
+\label{tab:selection}
+\end{table*}
+
+\subsubsection{Data Properties}
+\label{sec:data:dp1:properties}
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[height=8in]{figures/color_v_redshift.pdf}
+    \caption{Colors v redshift yo!.}
+    \label{fig:dp_color_v_redshift}
+\end{figure*}
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[height=8in]{figures/color_v_color.pdf}
+    \caption{Colors v colors yo! yo!.}
+    \label{fig:dp_color_v_color}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[height=8in]{figures/mag_i_v_redshift.pdf}
+    \caption{Mag. i v redshift yo! yo! yo!.}
+    \label{fig:dp_mag_i_v_redshift}
+\end{figure*}
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[height=8in]{figures/mags.pdf}
+    \caption{Magntidues yo! yo! yo! yo!.}
+    \label{fig:dp_mags}
+\end{figure*}
+
+
+
+\subsection{Spectroscopic Redshift Reference Sample}
+\label{sec:data:reference}
 
 
 \subsubsection{Euclid Spec-z dataset}
@@ -39,18 +103,106 @@ The Rubin Observatory’s Data Preview 1 (DP1) dataset is the first public relea
 \section{Methodology}
 \label{sec:method:0}
 
+\begin{table*}
+\centering
+\begin{tabular}{lll}
+ \hline
+    Algorithm name  & Home package & Reference\\
+ \hline
+ \hline
+ \code{BPZ} & \href{https://github.com/LSSTDESC/rail_bpz}{\code{rail-bpz}} & \citet{Benitez:2000}\\
+ \code{CMNN} & \href{https://github.com/LSSTDESC/rail_cmnn}{\code{rail-cmnn}} & \citet{Graham:2018}\\
+ \code{DNF} & \href{https://github.com/LSSTDESC/rail_dnf}{\code{rail-dnf}} & \citet{2016MNRAS.459.3078D}\\
+ \code{FlexZBoost}  & \href{https://github.com/LSSTDESC/rail_flexzboost}{\code{rail-flexzboost}} & \citet{Izbicki:2017}\\
+ \code{GPz} & \href{https://github.com/LSSTDESC/rail_gpz_v1}{\code{rail-gpz-v1}} & \citet{Almosallam:2016}\\
+ $k$-nearest neighbors & \href{https://github.com/LSSTDESC/rail_sklearn}{\code{rail-sklearn}} & RAIL Paper\\
+ \code{LePHARE} & \href{https://github.com/LSSTDESC/rail_lephare}{\code{rail-lephare}} & \citet{1999MNRAS.310..540A}\\
+ \code{TPZ} & \href{https://github.com/LSSTDESC/rail_tpz}{\code{rail-tpz}} & \citet{Carrasco-Kind:2013}\\
+ \hline
+\end{tabular}
+\caption{
+Summary of the pre-wrapped estimators/summarizers/classifiers described in Sec.~\ref{sec:est}.}
+\label{tab:alg}
+\end{table*}
+
 To produce photometric redshift estimates for the Rubin DP1 dataset, the Photoz Science Unit used the RAIL (Redshift Assessment Infrastructure Layers) software package as the core tool for training, evaluating, and applying photometric redshift estimation models. RAIL provides a modular and extensible framework that integrates a variety of machine learning and template-fitting algorithms, along with standardized interfaces for data input, model training, prediction, and validation. For the DP1 effort, RAIL was configured to use the multi-band photometric measurements from the DP1 object catalogs as input features—typically including magnitudes and colors derived from the g, r, i, and z bands.
 
-The photo-z models were trained using spectroscopic datasets that were matched to DP1 photometric sources, serving as labeled examples with known redshifts. RAIL's pipeline handled the ingestion of these training datasets, preprocessing steps such as feature normalization and selection, and the training of supervised learning models such as random forests, k-nearest neighbors, or neural networks. Once trained, these models were applied to the full DP1 photometric catalog to generate redshift predictions for galaxies without spectroscopic coverage.
+The photo-z models were trained using the spectroscopic datasets that were matched to DP1 photometric sources as described in Sec.\ref{sec:data:reference}, serving as labeled examples with known redshifts. RAIL's pipeline handled the ingestion of these training datasets, preprocessing steps such as feature normalization and selection, and the training of supervised learning models.  Once trained, these models were applied both to the reserved test sample of objects with spectroscopic coverage for performance evaluation and to 
+ the full DP1 photometric catalog to generate redshift predictions for galaxies without spectroscopic coverage.
 
-RAIL also supported evaluation of the model performance through a suite of diagnostic metrics, including redshift bias, scatter (e.g., normalized median absolute deviation), and catastrophic outlier rate. These evaluations were performed using held-out validation sets or cross-validation strategies to ensure robustness and generalizability. The entire workflow—from data ingestion and training to inference and validation—was conducted within RAIL’s reproducible and scalable infrastructure, allowing the Photoz Science Unit to produce scientifically meaningful photometric redshift estimates and to assess their quality within the context of Rubin’s early data products.
+RAIL also supported evaluation of the model performance through a suite of diagnostic metrics, including redshift bias, scatter (e.g., normalized median absolute deviation), and catastrophic outlier rate. These evaluations were performed using held-out validation sets or cross-validation strategies to ensure robustness and generalizability. The entire workflow, from data ingestion and training to inference and validation, was conducted within RAIL’s reproducible and scalable infrastructure, allowing the Photoz Science Unit to produce scientifically meaningful photometric redshift estimates and to assess their quality within the context of Rubin’s early data products.
 
-\subsection{Template fitting based}
+
+\subsection{Template fitting based estimators}
 \label{sec:method:template}
 
+RAIL’s template-based fitting algorithms are designed to estimate photometric redshifts by comparing observed galaxy photometry to a set of predefined theoretical or empirical galaxy templates. These templates represent different galaxy spectral energy distributions (SEDs) across various redshifts, capturing the expected variation in observed colors due to redshifted light. When applied to a photometric dataset, the algorithm fits the observed galaxy’s multi-band photometry to these templates by minimizing the difference between the observed and model fluxes in each band, typically using a chi-squared or likelihood-based fitting procedure. This process allows the algorithm to determine the most likely redshift for a given galaxy by identifying the template that best matches its observed color signature.
 
-\subsection{Machine Learning based}
+
+\subsection{Machine Learning based estimators}
 \label{sec:method:machine_learning}
+
+
 
 \subsection{Bookkeeping software}
 \label{sec:method:rail_project}
+
+
+The rail\_projects software package within the RAIL ecosystem provides an essential framework for managing and organizing large-scale photometric redshift estimation workflows. It acts as a project management and book-keeping tool that helps users streamline their research, especially when working with complex or large datasets, like those associated with the Rubin DP1 data. The primary focus of rail\_projects is to offer a systematic way to track different stages of data processing, model training, evaluation, and results across multiple experiments, ensuring that all tasks are well-documented and reproducible.
+
+One of the key features of rail\_projects is its ability to manage and store metadata associated with various studies, such as the configuration of input data (e.g., spectroscopic catalogs, photometric bands, or filters), the algorithms used, model parameters, and evaluation metrics. This ensures that every step of the workflow is transparent and can be revisited or reproduced at any time. For example, when a user trains multiple photometric redshift models with different algorithms or hyperparameters, rail\_projects tracks each model’s specific settings, along with the associated performance metrics (e.g., bias, scatter, and outliers) on validation sets. This makes it easy to compare and assess model performance across different configurations.
+
+Additionally, rail\_projects facilitates the management of large datasets by organizing data into structured directories and providing interfaces for batch processing. It allows users to scale up their work to handle not only large catalogs of objects but also multiple datasets and redshift estimation tasks. The package ensures that datasets and models are kept in sync across various stages, from raw input data to intermediate results to final outputs. This approach minimizes data mismanagement or errors during processing and enhances reproducibility, which is critical when dealing with large, complex scientific datasets like those produced by the Rubin Observatory.
+
+Another important feature of rail\_projects is its integration with other RAIL components, such as data pre-processing, feature extraction, and model evaluation. The software package seamlessly interacts with the RAIL pipeline, allowing users to easily incorporate custom data processing or post-processing steps, and to scale tasks for high-performance computing environments. As a result, rail\_projects is an invaluable tool for users conducting large-scale data exploration, model tuning, and experimentation within the RAIL framework, enabling efficient tracking, reproducibility, and consistent results management across photometric redshift estimation workflows.
+
+
+
+\section{Data Products}
+\label{sec:products:0}
+
+In the context of photometric redshift estimation for Rubin DP1, several data products are generated to ensure accurate redshift predictions and to facilitate thorough evaluation of the models. These products include configuration files, ancillary inputs, trained models, redshift estimates, summary statistics, and performance monitoring plots, all of which are essential for understanding the quality of the photometric redshift estimates and for refining the algorithms.   Together, these data products provide a comprehensive framework for conducting, managing, and evaluating photometric redshift estimation workflows in Rubin DP1. They ensure that the process is not only scientifically rigorous but also organized and reproducible, enabling effective collaboration and ongoing refinement of photometric redshift techniques.
+
+
+\subsection{Configuration Files}
+\label{sec: products:configuration}
+
+At the heart of any photometric redshift workflow in Rubin DP1 are the configuration files, which provide the necessary parameters and settings to control the various stages of the redshift estimation process. These files typically include specifications for the photometric bands used (e.g., g, r, i, z), the algorithm choices (e.g., template fitting or machine learning methods), and details about data preprocessing, such as feature normalization and handling of missing data.  Configuration files also specify the training and validation dataset splits, hyperparameters for machine learning models, and paths for input/output data. These files are essential for ensuring reproducibility and for sharing the exact settings used in different redshift estimation runs, enabling other researchers to replicate or extend the analysis.
+
+\subsection{Ancillary Input Files}
+\label{sec: products:algo_files}
+
+Ancillary inputs like filter definitions and galaxy spectral energy distribution (SED) templates play a crucial role in photometric redshift estimation. Filter definitions specify the characteristics of the observational filters used in Rubin DP1, including the filter transmission curves and their corresponding central wavelengths. These definitions are essential for converting the raw photometric measurements into meaningful colors and for matching the observed data to theoretical or empirical galaxy templates. Galaxy SED templates are collections of theoretical or observed spectra for galaxies at different redshifts and with different properties (e.g., galaxy type, age, star formation history). These templates are used by template-fitting algorithms to model the expected galaxy colors as a function of redshift, allowing for the estimation of photometric redshifts by comparing observed colors to those predicted by the templates.
+
+
+\subsection{Estimator Data Models}
+\label{sec: products:models}
+
+After training, the trained models for each photometric redshift estimation algorithm are stored as serialized files, typically in formats such as Pickle (for Python-based models) or YAML (for model configurations).  These models encapsulate the learned relationships between photometric features (such as magnitudes and colors) and redshift values, allowing them to be applied to new data for redshift estimation. These files store the final state of the model, including the weights, biases, and other learned parameters for machine learning models like Random Forests, Gradient Boosting Machines, or neural networks. In the case of template-fitting methods, the corresponding model files may include the template sets and the fitting parameters used. The Pickle or YAML format ensures that the models can be easily loaded, applied to new datasets, and evaluated in future experiments.
+
+
+\subsection{QP Ensembles}
+\label{sec: products:qp_ensembles}
+
+The pre-object redshift estimates generated by the photometric redshift algorithms are stored in "qp" files.  These files serve as containers for storing the redshift predictions for each object in the dataset before any detailed statistical analysis or final reporting. In the "qp" files, each galaxy’s redshift estimate is stored in a format that is compatible with the algorithm providing the estimate.  These files are designed to be lightweight and easy to query, allowing users to quickly retrieve the redshift estimates for individual objects. The structure of "qp" files is optimized for efficient access and data retrieval, making it easier for users to process and analyze large numbers of photometric redshift estimates across large datasets like Rubin DP1.
+
+
+\subsection{Per-Object Summary Statistics}
+\label{sec: products:summary_statistics}
+
+In addition to the raw redshift estimates, the "qp" files also store per-object summary statistics in the form of an ancillary table. These statistics include crucial information about the quality and reliability of each photometric redshift estimate, such as the uncertainty in the redshift prediction (e.g., the confidence interval or standard deviation or, the likelihood score (in the case of probabilistic models).   This table will eventually includes flags for identifying objects with low-confidence estimates or those that may be outliers. These summary statistics are important for evaluating the overall performance of the redshift estimation algorithms on an object-by-object basis and are often used to filter out low-quality or problematic redshift estimates before conducting larger statistical analyses.
+
+\subsection{Performance Montioring Plots}
+\label{sec: products:peformance_plots}
+
+Finally, performance monitoring plots are a key data product in the photometric redshift workflow. These plots provide visual representations of the model's performance, allowing users to assess how well the redshift estimates align with the true redshifts from the spectroscopic training data. Common plots include:
+
+\begin{itemize}
+\item{Scatter plots to visualize the relationship between the predicted and true redshifts, highlighting any systematic biases or non-linearities.}
+\item{Redshift comparison plots (e.g., the redshift residuals or bias vs. true redshift), which show the difference between the predicted and true redshifts as a function of redshift.}
+\end{itemize}
+
+
+
+\section{Performance}
+\label{sec:performance:0}
