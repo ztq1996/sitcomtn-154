@@ -1,13 +1,12 @@
 \section{Introduction}
 \label{sec:intro:0}
 
-The Vera C. Rubin Observatory’s Data Preview 1 (DP1) marked an important milestone in preparing for the forthcoming Legacy Survey of Space and Time (LSST), offering a valuable opportunity to test and validate scientific tools and workflows on precursor imaging data. Among the core scientific objectives of LSST is the estimation of photometric redshifts (photo-zs) for billions of galaxies, enabling cosmological analyses that rely on redshift-dependent distributions. In the context of DP1, the "Photoz Science Unit" was tasked with generating robust photometric redshift estimates using the available multi-band imaging, laying the groundwork for future large-scale applications. This effort required integrating realistic data processing with scalable machine learning techniques capable of delivering precise redshift predictions across varied galaxy populations.
+The Vera C. Rubin Observatory’s Data Preview 1 (DP1) marks an important milestone in preparing for the forthcoming Legacy Survey of Space and Time (LSST), offering a valuable opportunity to test and validate scientific tools and workflows on precursor imaging data. Among the core scientific objectives of LSST is the estimation of photometric redshifts (photo-zs) for billions of galaxies, enabling extragalactic astrophysics and cosmological analyses that rely on redshift estimates and distributions. The ``Photo-z Science Unit'' was tasked with generating robust photo-z estimates for every galaxy in DP1 using the available multi-band imaging, laying the groundwork for future large-scale applications. This effort required integrating realistic data processing with scalable machine learning techniques capable of delivering precise redshift predictions across varied galaxy populations.
 
-To carry out this task, the Photoz Science Unit employed the RAIL (Redshift Assessment Infrastructure Layers) software package, a flexible and modular platform specifically designed for photometric redshift estimation and evaluation. RAIL supports a range of machine learning and template-fitting algorithms and offers streamlined pipelines for training, testing, and applying photo-z models. For DP1, the team used RAIL to train supervised machine learning models on spectroscopic datasets that had been carefully matched to the DP1 photometric catalog. These training sets included galaxies with known spectroscopic redshifts, providing ground truth labels essential for optimizing model performance and assessing predictive accuracy.
+To accomplish this task, we employed the RAIL (Redshift Assessment Infrastructure Layers) software package, a flexible and modular platform designed for photo-z estimation and evaluation. RAIL supports a range of machine learning and template-fitting algorithms and offers streamlined pipelines for training, testing, and applying photo-z models.
+We used RAIL to train supervised machine learning models on redshift training sets crossmatched to the DP1 photometric catalog. These training sets, drawn from publicly available catalogs in the Extended Chandra Deep Field South (ECDFS), comprise galaxies with known spectroscopic redshifts, grism redshifts, and high-quality photo-z's from deep multi-band imaging. These training sets enable machine learning models within RAIL to learn the mapping between galaxy colors and redshifts, enabling photo-z estimation for every galaxy detected in DP1. The performance of the trained models was evaluated using metrics such as bias, scatter, and outlier fraction.
 
-A critical step in the process involved constructing a reliable and representative training sample. The matched spectroscopic datasets were drawn from several publicly available surveys that overlapped with the DP1 sky coverage, including deep fields with multi-band photometry similar to that expected from LSST. These spectroscopic redshifts enabled the calibration of photometric inputs, such as magnitudes, colors, and potentiall morphological features, against measure spectroscopic redshift values, allowing the machine learning models within RAIL to learn meaningful mappings between observed photometric properties and cosmological distance.  The performance of the trained models was evaluated using metrics such as bias, scatter, and outlier fraction, ensuring that the outputs met quality standards suitable for scientific analysis.
-
-The outcome of this effort was a set of photometric redshift estimates that are demonstrative of the pipeline's readiness for larger-scale deployment in future data releases.  The collaboration between the Photoz Science Unit and the broader DP1 effort provided valuable feedback on data quality, training requirements, and model generalization, while highlighting the importance of high-quality spectroscopic training sets. Moreover, the use of RAIL established a reproducible and extensible framework for photo-z estimation that can evolve in parallel with LSST’s data volume and complexity. This initial deployment in DP1 thus serves as a prototype for future photometric redshift workflows in the LSST era.
+This effort demonstrates the pipeline's readiness for larger-scale deployment in future data releases. In collaboration with the broader DP1 processing campaign, we provided valuable feedback on data quality, training requirements, and model generalization, while highlighting the importance of large, high-quality redshift training sets. Moreover, the use of RAIL established a reproducible and extensible framework for photo-z estimation that can evolve in parallel with LSST’s data volume and complexity. This initial deployment in DP1 thus serves as a prototype for future photo-z workflows in the LSST era.
 
 \section{Data}
 \label{sec:data:0}
@@ -15,7 +14,7 @@ The outcome of this effort was a set of photometric redshift estimates that are 
 \subsection{Rubin DP1}
 \label{sec:data:dp1}
 
-The Rubin Observatory’s Data Preview 1 (DP1) dataset is the first public release of real imaging data processed through the LSST Science Pipelines, serving as a critical testbed for scientific and technical validation ahead of full LSST operations.  DP1 is based on observations from the LSST commisioning camera (LSSTComCam) and includes multi-band optical imaging (typically in u, g, r, i, z and y filters) over several square degrees of sky.  The dataset consists of processed images, source catalogs, and associated metadata, all formatted using the Rubin Data Butler system to simulate LSST-like data products. Although smaller in scale than future LSST datasets, DP1 offers realistic photometric measurements, object detection, and data structures, making it an invaluable resource for developing and testing algorithms for tasks such as photometric redshift estimation, object classification, and data quality assessment.
+The Rubin Observatory’s Data Preview 1 (DP1) dataset is the first public release of real imaging data processed through the LSST Science Pipelines, serving as a critical testbed for scientific and technical validation ahead of full LSST operations.  DP1 is based on observations from the LSST commissioning camera (LSSTComCam) and includes multi-band optical imaging (typically in u, g, r, i, z and y filters) over several square degrees of sky. The dataset consists of processed images, source catalogs, and associated metadata, all formatted using the Rubin Data Butler system to simulate LSST-like data products. Although smaller in scale than future LSST datasets, DP1 offers realistic photometric measurements, object detection, and data structures, making it an invaluable resource for developing and testing algorithms for tasks such as photo-z estimation, object classification, and data quality assessment.
 
 \subsubsection{Data Preparation}
 \label{sec:data:dp1:preparation}
@@ -24,9 +23,9 @@ Preparing the object catalog data for training the redshift estimation algorithm
 
 \begin{enumerate}
 \item{Applying quality cuts to object catalog.  The quality cuts are listed in Tab.\ref{tab:selection}.}
-\item{Converting Fluxes to Magntidues.  We use a magntidue offset of 31.4}
+\item{Converting fluxes in nJy to AB magnitudes ($m_\text{AB} = -2.5 \log_{10}(f_\nu / \text{nJy}) + 31.4$)}
 \item{Dereddeing to account for galactic dust.   We use the SFD dust maps\cite{SFD}.}
-\item{Crossmatching objects with reference catalogs that include spectroscopic redshifts as described in Sec.\ref{sec:data:reference}.}
+\item{Crossmatching objects with reference catalogs that include redshift information as described in Sec.\ref{sec:data:reference}.}
 \item{Splitting the resulting catalog into ``training'' and ``test'' data sets.}
 \end{enumerate}
 
@@ -76,7 +75,7 @@ Preparing the object catalog data for training the redshift estimation algorithm
 \begin{figure*}
     \centering
     \includegraphics[height=8in]{figures/mags.pdf}
-    \caption{Magntidues yo! yo! yo! yo!.}
+    \caption{Magnitudes yo! yo! yo! yo!.}
     \label{fig:dp_mags}
 \end{figure*}
 
@@ -127,7 +126,7 @@ Summary of the pre-wrapped estimators/summarizers/classifiers described in Sec.~
 
 To produce photometric redshift estimates for the Rubin DP1 dataset, the Photoz Science Unit used the RAIL (Redshift Assessment Infrastructure Layers) software package as the core tool for training, evaluating, and applying photometric redshift estimation models. RAIL provides a modular and extensible framework that integrates a variety of machine learning and template-fitting algorithms, along with standardized interfaces for data input, model training, prediction, and validation. For the DP1 effort, RAIL was configured to use the multi-band photometric measurements from the DP1 object catalogs as input features—typically including magnitudes and colors derived from the g, r, i, and z bands.
 
-The photo-z models were trained using the spectroscopic datasets that were matched to DP1 photometric sources as described in Sec.\ref{sec:data:reference}, serving as labeled examples with known redshifts. RAIL's pipeline handled the ingestion of these training datasets, preprocessing steps such as feature normalization and selection, and the training of supervised learning models.  Once trained, these models were applied both to the reserved test sample of objects with spectroscopic coverage for performance evaluation and to 
+The photo-z models were trained using the spectroscopic datasets that were matched to DP1 photometric sources as described in Sec.\ref{sec:data:reference}, serving as labeled examples with known redshifts. RAIL's pipeline handled the ingestion of these training datasets, preprocessing steps such as feature normalization and selection, and the training of supervised learning models.  Once trained, these models were applied both to the reserved test sample of objects with spectroscopic coverage for performance evaluation and to
  the full DP1 photometric catalog to generate redshift predictions for galaxies without spectroscopic coverage.
 
 RAIL also supported evaluation of the model performance through a suite of diagnostic metrics, including redshift bias, scatter (e.g., normalized median absolute deviation), and catastrophic outlier rate. These evaluations were performed using held-out validation sets or cross-validation strategies to ensure robustness and generalizability. The entire workflow, from data ingestion and training to inference and validation, was conducted within RAIL’s reproducible and scalable infrastructure, allowing the Photoz Science Unit to produce scientifically meaningful photometric redshift estimates and to assess their quality within the context of Rubin’s early data products.
@@ -192,7 +191,7 @@ The pre-object redshift estimates generated by the photometric redshift algorith
 
 In addition to the raw redshift estimates, the "qp" files also store per-object summary statistics in the form of an ancillary table. These statistics include crucial information about the quality and reliability of each photometric redshift estimate, such as the uncertainty in the redshift prediction (e.g., the confidence interval or standard deviation or, the likelihood score (in the case of probabilistic models).   This table will eventually includes flags for identifying objects with low-confidence estimates or those that may be outliers. These summary statistics are important for evaluating the overall performance of the redshift estimation algorithms on an object-by-object basis and are often used to filter out low-quality or problematic redshift estimates before conducting larger statistical analyses.
 
-\subsection{Performance Montioring Plots}
+\subsection{Performance Monitoring Plots}
 \label{sec: products:peformance_plots}
 
 Finally, performance monitoring plots are a key data product in the photometric redshift workflow. These plots provide visual representations of the model's performance, allowing users to assess how well the redshift estimates align with the true redshifts from the spectroscopic training data. Common plots include:
@@ -244,4 +243,3 @@ Finally, performance monitoring plots are a key data product in the photometric 
     \caption{BPZ performance with only 4 bands..}
     \label{fig:perf_bpz_4}
 \end{figure*}
-
