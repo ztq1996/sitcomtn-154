@@ -2,8 +2,19 @@
 \input{meta}
 
 % Package imports go here.
+\usepackage{xcolor}
 
 % Local commands go here.
+
+% red, green, blue, cyan, magenta, yellow, black, gray, white, darkgray, lightgray, brown, lime, olive, orange, pink, purple, teal, violet
+% % personal tags should probably have argument for date
+\newcommand{\PersonalTag}[3]{{\color{#2}{{\bf #1} #3}}}
+% choose a color for yourself from the xcolor table here: https://www.overleaf.com/learn/latex/Using_colours_in_LaTeX
+\newcommand{\any}[1]{\PersonalTag{}{red}{#1}}
+\newcommand{\eac}[1]{\PersonalTag{Eric}{purple}{#1}}
+\newcommand{\needcite}[1]{{\color{red} citation needed {#1}}\xspace}
+\newcommand{\codetodo}[1]{{\color{gray} [code TODO: {#1}]}\xspace}
+\newcommand{\halp}[2]{\textbf{\color{blue} INSTRUCTIONS FOR CONTRIBUTORS ({#1}): {#2}}\xspace}
 
 %If you want glossaries
 %\input{aglossary.tex}
