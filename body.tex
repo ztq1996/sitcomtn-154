@@ -18,14 +18,14 @@ The Rubin Observatory’s Data Preview 1 (DP1) dataset is the first public relea
 \subsubsection{Data preparation}
 \label{sec:data:dp1:preparation}
 
-Preparing the object catalog data for training the redshift estimation algorithms included five steps:
+Preparing object catalog data for photometric redshift algorithm training and estimation included five steps:
 
 \begin{enumerate}
 \item{Applying quality cuts to the object catalog.   We developed two selections for the training and test, one applicable for fields with observations in only four bands, the other for fields with observations in all six bands.   These selections are below.}
 \item{Converting fluxes in nJy to AB magnitudes ($m_\text{AB} = -2.5 \log_{10}(f_\nu / \text{nJy}) + 31.4$)}
 \item{Dereddeing to account for galactic dust.  We use the SFD dust maps\cite{SFD}.}
 \item{Crossmatching objects with reference catalogs that include redshift information as described in Sec.\ref{sec:data:reference}.}
-\item{Splitting the resulting catalog into ``training'' and ``test'' data sets.}
+\item{Shuffling and splitting the resulting catalog into ``training'' and ``test'' data sets.}
 \end{enumerate}
 
 The data selection criteria we used were:
@@ -33,6 +33,10 @@ The data selection criteria we used were:
 \item{\strong{gold}: Detection in 'ugrizy' \code{ \&\& i\_psfFlux / i\_psfFluxErr > 5 \&\& ( g\_extendedness > 0.5 || r\_extendedness > 0.5)}}
 \item{\strong{gold\_4\_band}: Detection in 'griz' \code{ \&\& i\_psfFlux / i\_psfFluxErr > 5 \&\& ( g\_extendedness > 0.5 || r\_extendedness > 0.5)}}
 \end{itemize}
+
+For the training set, we follows step 1--5 in the ECDFS field. For estimating the object catalog, we complete step 1--3 in the ``ECDFS'', ``EDFS'', ``Rubin SV 95 -25'' and apply the \textbf{gold} target selection. In ``Rubin SV 38 7'', DP1 only has observation in 4 bands (``griz''), therefore we apply preparation step 1--3 and the ``gold\_4\_band'' target selection to the ``Rubin SV 38 7'' field. 
+
+For estimating the photometric redshift of the DP1 object catalog, the modeled trained on the 6 bands training set will be applied to the ``ECDFS'', ``EDFS'', ``Rubin SV 95 -25'' object catalog, and models trained on the 4 bands training set will be applied to the ``Rubin SV 38 7'' catalog. 
 
 
 \subsubsection{Data properties}
@@ -159,7 +163,9 @@ The configuration files, collected \href{https://github.com/lsstdesc/rail_projec
 \subsection{Ancillary input files}
 \label{sec: products:algo_files}
 
-In addition to the configuraiton files, we require ancillary inputs such as filter definitions and galaxy spectral energy distribution (SED) template.  Filter definitions specify the characteristics of the observational filters used in Rubin DP1, including the filter transmission curves and their corresponding central wavelengths.  These definitions are essential for converting the raw photometric measurements into meaningful colors and for matching the observed data to theoretical or empirical galaxy templates.  Galaxy SED templates are collections of theoretical or observed spectra for galaxies at different redshifts and with different properties (e.g., galaxy type, age, star formation history).  These templates are used by template-fitting algorithms to model the expected galaxy colors as a function of redshift, allowing for the estimation of photometric redshifts by comparing observed colors to those predicted by the templates.   \eac{Sam, can you add something here?}
+In addition to the configuration files, we require ancillary inputs such as the  galaxy spectral energy distribution (SED) templates and the filter throughputs.  Galaxy SED templates are collections of theoretical or observed spectra for galaxies at different redshifts and with different properties (e.g., galaxy type, age, star formation history).  These templates are used by template-fitting algorithms to model the expected galaxy colors as a function of redshift, allowing for the estimation of photometric redshifts by comparing observed colors to those predicted by the templates.  The filter throughputs specify the characteristics of the fiducial observational filter transmission curves, and are used in Rubin DP1, including their corresponding central wavelengths.  These filter curves are employed in calculating the synthetic fluxes or magnitudes expected from each of the SED templates used in template-fitting algorithms, and for matching observational data to predicted theoretical values, e.~g.~the predicted colors shown in Figure~\ref{fig:dp_color_v_redshift}}.
+
+\eac{Sam, can you add something here?}
 
 
 \subsection{Estimator data models}
