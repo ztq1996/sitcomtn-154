@@ -171,19 +171,19 @@ We then did a random 80\%/20\% train/test split on this catalog, resulting in a 
         3D-HST & g & 0.99 & 5 & \citet{momcheva2016} \\
                &   & 0.95 & 277 & \\
         ASTRODEEP & s & 1.00 & 4165 & \citet{merlin2021} \\
-                  & p & 0.97 & 8212 & \\
+                  & p$^{*}$ & 0.97 & 8212 & \\
         ASTRODEEP-JWST & s & 1.00 & 594 & \citet{merlin2024} \\
-                       & p & 0.92 & 628 & \\
+                       & p$^{*}$ & 0.92 & 628 & \\
                        &   & 0.90 & 455 & \\
         CANDELS & s & 1.00 & 53 & \citet{kodra2023} \\
-                & p & 0.93 & 6 & \\
+                & p$^{*}$ & 0.93 & 6 & \\
         JADES & s & 0.99 & 11 & \citet{deugenio2025} \\
               &   & 0.95 & 34 & \\
               &   & 0.90 & 24 & \\
         MOSDEF & s & 0.99 & 9 & \citet{kriek2015} \\
         NED & s & 0.95 & 847 & \citet{helou1991} \\
         OzDES & s & 0.99 & 897 & \citet{lidman2020} \\
-        PRIMUS & g & 0.92 & 3653 & \citet{cool2013} \\
+        PRIMUS & g$^{*}$ & 0.92 & 3653 & \citet{cool2013} \\
                &   & 0.85 & 1687 & \\
         VANDELS & s & 1.00 & 196 & \citet{garilli2021} \\
         VIMOS & s & 1.00 & 499 & \citet{balestra2010} \\
@@ -204,7 +204,8 @@ We then did a random 80\%/20\% train/test split on this catalog, resulting in a 
         Component surveys of the redshift reference sample.
         Redshift type is denoted\\ s = spectroscopic, g = grism, p = multiband photo-z.
         Note for our fiducial analyses we applied conservative cuts on this catalog.
-        Specifically, \code{type == ''s''}, \code{confidence >= 0.95}, SNR $>= 10$ in the $i$ band (using \code{gaap1p0} fluxes).
+        Specifically, \code{type == ''s''}, \code{confidence >= 0.95}, SNR $>= 10$ in the $i$ band (using \code{gaap1p0} fluxes).\\
+        $^{*}$ Note: multiband photo-z redshifts and grism redshifts with confidence < 0.95 were not used in any training sets employed in this note.
     }
     \label{tab:reference-sample}
 \end{table}
@@ -452,7 +453,7 @@ The PZ server is open to any LSST member with a valid RSP account without the ne
 
 All data products described in this document 
 will be % are also 
-hosted on the PZ Server, along with their respective metadata and documentation. There are two ways to access these data products: 
+hosted on the PZ Server, along with their respective metadata and documentation. A list with access instructions and links to product pages will be available on the  \href{https://docs.linea.org.br/en/data/pz_server_data.html#data-preview-1}{data products documentation page}. There are two ways to access these data products: 
 
 \subsubsection{From the PZ Server website} 
 
@@ -604,7 +605,7 @@ LePhare    & -0.012 (-0.015) & 0.0344 (0.0699) & 0.207 (0.175) & 0.139 (0.185) \
 
 
 \subsubsection{Redshift estimation quality flags}
-\label{sec:performance:pz}
+\label{sec:performance:pz:flags}
 
 Applying a simple cut on the RMS of the $p(z)$ distribution can dramatically reduce the catastrophic outlier rate.  In Fig.~\ref{fig:perf_quality_cut} we show how the efficiency and purity obtained on the test sample varies with a single additional cut, $x$ in $\sigma_{p(z)} < x$.   In Fig.~\ref{fig:scatter_quality_cut} we show how applying a cut at $\sigma_{p(z)} < 0.15$ improves the scatter of the photometric redshift point-estimate versus spectroscopic redshift distribution.  As fainter objects and objects at higher redshift often have larger p(z) RMS values, cuts on RMS will likely result in relative shifts in the magnitude and redshift distribution depending on the cut value.
 
@@ -632,14 +633,14 @@ We cross-matched our photo-$z$ estimates with the DESI DR1 LSS galaxies (BGS, LR
 
 \begin{figure*}
 \centering
-\includegraphics[width=0.32\linewidth]{figures/fzboost_mode_desi.png}
-\includegraphics[width=0.32\linewidth]{figures/knn_mode_desi.png}
-\includegraphics[width=0.32\linewidth]{figures/cmnn_mode_desi.png}
-\includegraphics[width=0.32\linewidth]{figures/dnf_mode_desi.png}
-\includegraphics[width=0.32\linewidth]{figures/tpz_mode_desi.png}
-\includegraphics[width=0.32\linewidth]{figures/gpz_mode_desi.png}
-\includegraphics[width=0.32\linewidth]{figures/bpz_mode_desi.png}
-\includegraphics[width=0.32\linewidth]{figures/lephare_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/fzboost_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/knn_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/cmnn_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/dnf_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/tpz_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/gpz_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/bpz_mode_desi.png}
+\includegraphics[width=0.24\linewidth]{figures/lephare_mode_desi.png}
 \caption{Mode photometric redshift estimates versus DESI DR1 spectroscopic redshifts for galaxies in the \texttt{SV\_38} cross-matched sample. Each panel shows results from a different photo-$z$ algorithm: FlexZBoost, kNN, CMNN, DNF, TPZ, GPz, BPZ, and LePhare (from left to right, top to bottom). These comparisons provide an external validation of photo-$z$ performance using Large-Scale Structure spectroscopic redshifts samples DESI.}
 \label{fig:sv_validation}
 \end{figure*}
@@ -717,6 +718,7 @@ The photo-z estimates described in this note were done on a best-effort basis by
 This note describes an initial calculation of photometric redshifts on the Rubin Data Preview 1 dataset using the tools and workflows developed specifically for this purpose by the Photo-z Science Unit.  These early results are very promising, we show that we can successfully match Rubin data with spectroscopic samples in the ECDFS field with deep six-band Rubin coverage to create a reference sample and run our software pipelines to generate a catalog of individual object redshifts consisting of both point 1D redshift PDFs and point estimate redshifts.  We show results for eight photo-z algorithms using a reserve set of redshifts, and see that photo-z performance is in-line with expectations both in terms of our redshift predictions and for compute times.  We also test our estimates against an independent set of redshifts from the \texttt{SV\_38} field with shallower coverage and imaging in only four of the six Rubin bands.  We describe available data products and anticipated methods to access them.  Overall, this is a very successful initial test of photo-z pipelines.
 
 However, work will continue on several fronts to further optimize the performance of our redshift predictions.  As mentioned earlier in the note, the definition of the true redshift reference sample used to train our algorithms has a large impact on results, being the ``truth" used to define the flux/color-to-redshift mapping that is inherent to photo-z estimation.  We will work to refine our reference sample definition, which objects to include/exclude based on quality flags, explore the tradeoffs of including grism and many-band photo-z estimates with larger redshift uncertainties in our training sample, and other such effects.  As more and more Rubin data is taken, areal coverage is increasing, including coverage of additional deep calibration fields with existing spec-z datasets.  This will naturally improve photo-z performance.  Expansion of reference redshifts will also enable the development of improved object flagging for identifying which redshifts are trustworthy and those which are likely to be incorrect.
+
 
 We will also continue to examine the Rubin photometry and evaluate the performance of multiple measurement algorithms.  In this note we used Gaussian Aperture (Gaap) fluxes and magnitudes, as they are expected to produce consistent colors.  We will undertake a thorough exploration of multiple fluxe measurements (e.~g.~cModel, Sersic, additional Gaap apertures) to test which combinations lead to the best photo-z estimates, as well as combinations like using multiple aperture magnitudes that may contain information on the galaxy light profile that could help to constrain redshift.  As we are still in the engineering and testing phase of the project, there is ongoing work to characterize system performance, and improved understanding of the system will likely lead to better photo-z performance.  For example, there may be some hints that u-band fluxes are overestimated and u-band uncertainties underestimated at faint magnitudes (see the high redshift u-g colors in Fig.~\ref{fig:dp_color_v_redshift} and figures in~\citet{RTN:095}).  DP1 data was obtained using ComCam, while future data releases will use LSSTCam, and thus performance for DP2 and beyond may be shaped by slight differences between the two instruments.  
 
